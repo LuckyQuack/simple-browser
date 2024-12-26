@@ -8,8 +8,9 @@
     </head>
     <body>
         <div id="app">
-            <input type="text", id="search-bar" placeholder="Search something up...">
+            <input type="text" id="search-bar" onkeydown="if (event.key === 'Enter') performSearch()" placeholder="Search something up...">
             <button onclick="performSearch()">Search</button>
+            <button onclick="goBack()">Go Back</button>
             <div id="results"></div>
         </div>
         <script src="script.js"></script>

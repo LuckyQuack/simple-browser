@@ -1,3 +1,5 @@
+let queryHistory = [];
+
 async function performSearch(query = null) {
     const searchQuery = query != null ? query : document.getElementById("search-bar")?.value?.trim();
 
@@ -9,6 +11,12 @@ async function performSearch(query = null) {
         alert("Please enter a search query.");
         return;
     }
+
+    if (queryHistory.length === 0 || queryHistory[queryHistory.length - 1] !== searchQuery) {
+        queryHistory.push(searchQuery);
+    }
+
+    console.log("Query history:", queryHistory);
 
     try {
         const response = await fetch (`http://127.0.0.1:5000/search?query=${encodeURIComponent(searchQuery)}`);
@@ -24,9 +32,28 @@ async function performSearch(query = null) {
     }
 }
 
+function goBack() {
+    if (queryHistory.length > 1) {
+        queryHistory.pop(); 
+        const previousQuery = queryHistory[queryHistory.length - 1];
+        document.getElementById("search-bar").value = previousQuery; 
+        performSearch(previousQuery); 
+    } else {
+        alert("No previous queries to go back to.");
+    }
+}
+
 function displayResults(data) {
     const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = `<p>${data.answer}</p>`;
+    resultsDiv.innerHTML = "";
+
+    const titleElement = document.createElement("h2");
+    titleElement.innerText = data.title || "Search Result"; 
+    resultsDiv.appendChild(titleElement);
+
+    const summaryElement = document.createElement("p");
+    summaryElement.innerText = data.answer || "No summary available.";
+    resultsDiv.appendChild(summaryElement);
 
     const keywordContainer = document.createElement("div");
     keywordContainer.className = "keywords";
@@ -35,7 +62,7 @@ function displayResults(data) {
         const span = document.createElement("span");
         span.innerText = keyword;
         span.className = "keyword";
-        span.onclick = () => performSearch(keyword);
+        span.onclick = () => performSearch(keyword); 
         keywordContainer.appendChild(span);
     });
 
